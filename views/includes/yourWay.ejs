@@ -4,6 +4,7 @@
 
     <div class="w-full max-w-7xl mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row mt-20 lg:mt-24 mb-8 lg:mb-16 lg:h-[85vh]">
 
+        <!-- Left Panel: Inputs & Route List -->
         <div class="w-full lg:w-1/3 flex flex-col p-6 space-y-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-white">Route Planner</h1>
@@ -11,6 +12,7 @@
             </div>
 
             <div class="space-y-4">
+                <!-- Origin Input -->
                 <div>
                     <label for="origin-input" class="block text-sm font-medium text-gray-300 mb-1">Origin</label>
                     <div class="relative flex items-center">
@@ -22,139 +24,168 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Destination Input -->
                 <div>
                     <label for="destination-input" class="block text-sm font-medium text-gray-300 mb-1">Destination</label>
                     <input type="text" id="destination-input" placeholder="e.g., Delhi, India" class="w-full bg-gray-700 text-white rounded-lg py-2 px-3 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                 </div>
             </div>
 
+            <!-- Get Route Button -->
             <button id="get-route-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
                 Get Directions
             </button>
-            
+
+            <!-- Status Panel -->
             <div id="status-panel" class="text-center text-yellow-400 text-sm py-2 h-8"></div>
 
-            <div class="h-48 lg:flex-grow bg-gray-900/50 rounded-lg overflow-y-auto p-3">
+            <!-- Directions / Routes List -->
+            <div class="h-96 lg:flex-grow bg-gray-900/50 rounded-lg overflow-y-auto p-3">
                 <div id="directions-panel" class="text-sm">
                     <p class="text-gray-500">Your route instructions will appear here.</p>
                 </div>
             </div>
         </div>
 
+        <!-- Right Panel: Map -->
         <div class="w-full lg:w-2/3 h-96 lg:h-full bg-gray-700">
             <div id="map" class="w-full h-full"></div>
         </div>
     </div>
 </div>
 
+<!-- Google Maps API -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= GOOGLE_MAPS_API_KEY %>&libraries=places&callback=initMap"></script>
 
 <script>
-    // --- Google Maps Logic ---
-    let map, directionsService, directionsRenderer;
-    let autocompleteOrigin, autocompleteDestination;
+let map, directionsService;
+let routeRenderers = [];
+let trafficLayer;
+let autocompleteOrigin, autocompleteDestination;
 
-    /**
-     * Initializes the map and sets up services, autocomplete, and event listeners.
-     */
-    function initMap() {
-        // Services for calculating and displaying routes
-        directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer();
+// Initialize Map
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 20.5937, lng: 78.9629 },
+        zoom: 5,
+        disableDefaultUI: true,
+        zoomControl: true,
+        styles: [ // Dark mode
+            { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+            { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+            { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] }
+        ]
+    });
 
-        // Map Options (Dark Mode)
-        const mapOptions = {
-            zoom: 5,
-            center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-            mapTypeId: 'roadmap',
-            disableDefaultUI: true,
-            zoomControl: true,
-            styles: [ { elementType: 'geometry', stylers: [{ color: '#242f3e' }] }, { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] }, { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] }, { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] }, { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] }, { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] }, { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] }, { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] }, { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] }, { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] }, { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] }, { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] }, { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] }, { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] }, { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] }, { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] }, { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] }, { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] }],
-        };
-        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+    directionsService = new google.maps.DirectionsService();
+    trafficLayer = new google.maps.TrafficLayer();
+    trafficLayer.setMap(map);
 
-        // Link the directions renderer to the map and the directions panel
-        directionsRenderer.setMap(map);
-        directionsRenderer.setPanel(document.getElementById('directions-panel'));
-        
-        // --- Autocomplete Functionality ---
-        const originInput = document.getElementById('origin-input');
-        const destinationInput = document.getElementById('destination-input');
-        const autocompleteOptions = {
-            componentRestrictions: { country: 'in' }, // Bias to India
-            fields: ["formatted_address", "geometry", "name"],
-        };
-        autocompleteOrigin = new google.maps.places.Autocomplete(originInput, autocompleteOptions);
-        autocompleteDestination = new google.maps.places.Autocomplete(destinationInput, autocompleteOptions);
-        
-        // --- Event Listeners ---
-        document.getElementById('get-route-btn').addEventListener('click', calculateAndDisplayRoute);
-        document.getElementById('get-location-btn').addEventListener('click', getCurrentLocation);
+    const originInput = document.getElementById('origin-input');
+    const destinationInput = document.getElementById('destination-input');
+
+    autocompleteOrigin = new google.maps.places.Autocomplete(originInput, { componentRestrictions: { country: 'in' } });
+    autocompleteDestination = new google.maps.places.Autocomplete(destinationInput, { componentRestrictions: { country: 'in' } });
+
+    document.getElementById('get-route-btn').addEventListener('click', calculateAndDisplayRoute);
+    document.getElementById('get-location-btn').addEventListener('click', getCurrentLocation);
+}
+
+// Get current location
+function getCurrentLocation() {
+    const statusPanel = document.getElementById('status-panel');
+    const originInput = document.getElementById('origin-input');
+
+    if (navigator.geolocation) {
+        statusPanel.textContent = 'Getting your location...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: pos }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        originInput.value = results[0].formatted_address;
+                        statusPanel.textContent = 'Location found!';
+                        setTimeout(() => statusPanel.textContent = '', 2000);
+                    } else {
+                        statusPanel.textContent = 'Geocoder failed: ' + status;
+                    }
+                });
+            },
+            () => { statusPanel.textContent = 'Error: Geolocation service failed.'; }
+        );
+    } else {
+        statusPanel.textContent = 'Error: Your browser doesn\'t support geolocation.';
+    }
+}
+
+// Calculate routes
+function calculateAndDisplayRoute() {
+    const origin = document.getElementById('origin-input').value;
+    const destination = document.getElementById('destination-input').value;
+    const statusPanel = document.getElementById('status-panel');
+    const panel = document.getElementById('directions-panel');
+
+    if (!origin || !destination) {
+        statusPanel.textContent = 'Please enter both an origin and a destination.';
+        return;
     }
 
-    /**
-     * Gets the user's current location using the browser's Geolocation API.
-     */
-    function getCurrentLocation() {
-        const statusPanel = document.getElementById('status-panel');
-        const originInput = document.getElementById('origin-input');
+    statusPanel.textContent = 'Calculating routes...';
+    panel.innerHTML = '';
 
-        if (navigator.geolocation) {
-            statusPanel.textContent = 'Getting your location...';
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    const geocoder = new google.maps.Geocoder();
-                    
-                    geocoder.geocode({ location: pos }, (results, status) => {
-                        if (status === 'OK' && results[0]) {
-                            originInput.value = results[0].formatted_address;
-                            statusPanel.textContent = 'Location found!';
-                            setTimeout(() => statusPanel.textContent = '', 2000); // Clear after 2s
-                        } else {
-                            statusPanel.textContent = 'Geocoder failed: ' + status;
-                        }
+    // Clear old routes
+    routeRenderers.forEach(r => r.setMap(null));
+    routeRenderers = [];
+
+    const request = {
+        origin: origin,
+        destination: destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: true
+    };
+
+    directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+            statusPanel.textContent = '';
+            
+            result.routes.forEach((route, index) => {
+                const renderer = new google.maps.DirectionsRenderer({
+                    map: map,
+                    directions: result,
+                    routeIndex: index,
+                    polylineOptions: {
+                        strokeColor: index === 0 ? "#4285F4" : "#999999",
+                        strokeWeight: 5,
+                        strokeOpacity: 0.8,
+                    },
+                    suppressMarkers: false,
+                });
+                routeRenderers.push(renderer);
+
+                const leg = route.legs[0];
+                const div = document.createElement('div');
+                div.className = "cursor-pointer p-2 mb-2 rounded bg-gray-700 hover:bg-gray-600 transition";
+                div.innerHTML = `<strong>Route ${index+1}</strong><br>${leg.start_address} → ${leg.end_address}<br>Distance: ${leg.distance.text}, Duration: ${leg.duration.text}`;
+
+                div.addEventListener('click', () => {
+                    routeRenderers.forEach((r, i) => {
+                        r.setOptions({ polylineOptions: { strokeColor: "#999999", strokeWeight: 4, strokeOpacity: 0.5 } });
                     });
-                },
-                () => {
-                    statusPanel.textContent = 'Error: Geolocation service failed. Please enable it.';
-                }
-            );
+                    renderer.setOptions({ polylineOptions: { strokeColor: "#4285F4", strokeWeight: 6, strokeOpacity: 1 } });
+                    map.fitBounds(route.bounds);
+                });
+
+                panel.appendChild(div);
+            });
+
         } else {
-            statusPanel.textContent = 'Error: Your browser doesn\'t support geolocation.';
+            statusPanel.textContent = 'Directions request failed: ' + status;
+            panel.innerHTML = '<p class="text-gray-500">Could not find a route. Please try different locations.</p>';
         }
-    }
-
-    /**
-     * Calculates and displays the route on the map and in the directions panel.
-     */
-    function calculateAndDisplayRoute() {
-        const origin = document.getElementById('origin-input').value;
-        const destination = document.getElementById('destination-input').value;
-        const statusPanel = document.getElementById('status-panel');
-        
-        if (!origin || !destination) {
-            statusPanel.textContent = 'Please enter both an origin and a destination.';
-            return;
-        }
-
-        const request = {
-            origin: origin,
-            destination: destination,
-            travelMode: 'DRIVING',
-        };
-
-        statusPanel.textContent = 'Calculating route...';
-
-        directionsService.route(request, (result, status) => {
-            if (status == 'OK') {
-                statusPanel.textContent = ''; // Clear status on success
-                directionsRenderer.setDirections(result);
-            } else {
-                statusPanel.textContent = 'Directions request failed: ' + status;
-                document.getElementById('directions-panel').innerHTML = '<p class="text-gray-500">Could not find a route. Please try different locations.</p>';
-            }
-        });
-    }
-
+    });
+}
 </script>

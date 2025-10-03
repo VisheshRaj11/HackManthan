@@ -125,7 +125,7 @@ app.get("/analysis", (req, res) => {
 
 app.get("/yourway", (req, res) => {
   res.render("includes/yourway", {
-    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAP_API,
   });
 });
 
