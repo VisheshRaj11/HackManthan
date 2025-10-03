@@ -70,24 +70,22 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
-app.get("/analysis", (req, res) => {
-  const videoUrl = req.query.videoUrl || "";
-  res.render("index", { videoUrl });
-});
-
-
-// --- Routes ---
 
 app.get('/login', (req, res) => {
-    res.render('includes/login.ejs');
+  res.render('includes/login.ejs');
 });
 
 app.get('/signup', (req, res) => {
-    res.render('includes/signup.ejs');
+  res.render('includes/signup.ejs');
+});
+
+app.get("/analysis", (req, res) => {
+  const videoUrl = req.query.videoUrl || "";
+  res.render("includes/analysis", { videoUrl });
 });
 
 app.get('/yourway', (req, res) => {
-    res.render('includes/yourway.ejs',{
+  res.render('includes/yourway.ejs',{
         GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAP_API 
     });
 });
