@@ -11,13 +11,13 @@ const navLinks = [
 <header id="main-header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out">
     <nav class="container mx-auto flex items-center justify-between p-4">
         <div class="text-2xl md:text-4xl font-bold text-white">
-            <a href="#">MyWebsite</a>
+            <a href="#">GridFlow</a>
         </div>
         
-        <ul class="hidden md:flex md:gap-10 md:text-lg items-center space-x-6 font-semibold text-white">
+        <ul class="hidden md:flex md:gap-10 md:text-lg lg:text-xl items-center space-x-6 font-semibold text-white">
             <% navLinks.forEach(link => { %>
                 <li>
-                    <a href="<%= link.href %>" class="hover:text-orange-400 transition-colors md:p-2 rounded hover:bg-white/10"><%= link.text %></a>
+                    <a href="<%= link.href %>" class="hover:text-orange-400 transition-colors md:p-2 rounded hover:border-b hover:border-orange-300"><%= link.text %></a>
                 </li>
             <% }) %>
         </ul>
