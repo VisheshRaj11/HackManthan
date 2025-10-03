@@ -1,0 +1,11 @@
+{
+  "gemini_api_key": "AIzaSyD7CXPYZH-AQ7zYBZqn01rP6t956f3LYVw",
+  "confidence_threshold": 0.5,
+  "max_api_retries": 3,
+  "api_timeout": 30,
+  "max_objects_per_frame": 10,
+  "cache_enabled": true,
+  "max_questions_per_object": 3,
+  "vqa_enabled": true,
+  "gemini_enabled": true
+}

@@ -1,0 +1,244 @@
+<% layout("layouts/boilerplate") %>
+
+<canvas id="snapshot-canvas" class="hidden"></canvas>
+
+<section id="analysis-section" class="relative min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 overflow-hidden">
+    <div id="particles-js" class="absolute inset-0 z-0"></div>
+
+    <div class="relative z-10 w-full lg:pt-0 max-w-screen-2xl h-full flex flex-col gap-6 text-white pt-[90px]">
+        
+        <div class="flex flex-col lg:flex-row gap-6 flex-grow" style="height: 80vh;">
+            
+            <div class="w-full lg:w-3/5 h-full bg-black rounded-xl shadow-2xl flex flex-col border border-gray-700 overflow-hidden">
+                <div class="p-4 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold">Live Camera Feed</h2>
+                    <span id="video-status" class="flex items-center gap-2 text-sm font-semibold text-gray-400">
+                        OFFLINE
+                    </span>
+                </div>
+                <div class="flex-grow bg-black flex items-center justify-center">
+                    <img id="videoFeed" src="" alt="Video feed will appear here" class="w-full h-auto" crossorigin="anonymous">
+                </div>
+            </div>
+
+            <div class="w-full lg:w-2/5 h-full bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-2xl flex flex-col border border-gray-700">
+                <div class="p-4 border-b border-gray-600">
+                    <h3 class="font-bold text-lg text-center">AI Assistant</h3>
+                </div>
+                <div id="chat-box" class="flex-grow p-4 space-y-4 overflow-y-auto">
+                    <div class="flex justify-start">
+                        <p class="bg-gray-700 rounded-lg p-3 max-w-xs">Hello! Connecting to the stream. Once live, you can ask me anything about the video feed.</p>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-gray-600">
+                    <form id="chat-form" class="flex items-center gap-3">
+                        <input 
+                            id="chat-input"
+                            type="text" 
+                            placeholder="Waiting for video stream..." 
+                            class="w-full bg-gray-700 text-white rounded-full py-2 px-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                            autocomplete="off"
+                            disabled 
+                        >
+                        <button id="chat-button" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-full transition-transform transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    #particles-js {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script>
+// --- PARTICLES.JS INITIALIZATION ---
+if (document.getElementById('particles-js')) {
+    particlesJS('particles-js', {
+        "particles": { "number": { "value": 80 }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5 }, "size": { "value": 3 }, "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2 }, "move": { "enable": true, "speed": 2 } },
+        "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } }, "modes": { "grab": { "distance": 140 } } },
+        "retina_detect": true
+    });
+}
+
+// --- MERGED APPLICATION LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Video elements
+    const videoFeed = document.getElementById('videoFeed');
+    const videoStatus = document.getElementById('video-status');
+    const canvas = document.getElementById('snapshot-canvas');
+
+    // Chat elements
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatButton = document.getElementById('chat-button');
+    const chatBox = document.getElementById('chat-box');
+
+    // Get the video URL passed from the server via EJS templating.
+    const videoUrl = '<%= videoUrl %>';
+
+    // --- Core Functions ---
+
+    /**
+     * Starts the video stream by calling the backend.
+     * @param {string} url - The URL of the video stream or "0" for webcam.
+     */
+    async function startStream(url) {
+        // Use "0" for webcam if the URL is empty
+        const streamUrl = url || "0"; 
+
+        updateStatus('CONNECTING...', 'yellow');
+        chatInput.disabled = true;
+        chatButton.disabled = true;
+
+        try {
+            await fetch('http://localhost:5001/start_stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stream_url: streamUrl })
+            });
+
+            // Update the img src to point to the feed. Timestamp prevents caching.
+            videoFeed.src = `http://localhost:5001/video_feed?t=${new Date().getTime()}`;
+        
+        } catch (error) {
+            console.error("Error starting stream:", error);
+            updateStatus('STREAM FAILED', 'gray');
+            chatInput.placeholder = 'Failed to start stream.';
+        }
+    }
+
+    // --- Event Handlers ---
+
+    videoFeed.onload = () => {
+        console.log("Video stream loaded successfully.");
+        updateStatus('LIVE', 'red');
+        chatInput.disabled = false;
+        chatButton.disabled = false;
+        chatInput.placeholder = "Ask about the feed...";
+    };
+
+    videoFeed.onerror = () => {
+        console.error("Failed to load video stream.");
+        if (!videoStatus.textContent.includes('FAILED')) {
+            updateStatus('STREAM FAILED', 'gray');
+            chatInput.placeholder = "Video stream failed to load.";
+        }
+    };
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        appendMessage(question, 'user');
+        chatInput.value = '';
+        chatInput.disabled = true;
+        chatButton.disabled = true;
+        
+        const thinkingIndicator = appendMessage('...', 'ai', true);
+
+        try {
+            const ctx = canvas.getContext('2d');
+            canvas.width = videoFeed.naturalWidth;
+            canvas.height = videoFeed.naturalHeight;
+            ctx.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+
+            const base64Frame = canvas.toDataURL('image/jpeg').split(',')[1];
+
+            const response = await fetch('/ask-question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, frame: base64Frame })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Request failed with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            thinkingIndicator.querySelector('p').textContent = data.answer;
+            thinkingIndicator.querySelector('p').classList.remove('italic', 'text-gray-400');
+
+        } catch (error) {
+            console.error('Error asking question:', error);
+            thinkingIndicator.querySelector('p').textContent = `Error: ${error.message}`;
+            thinkingIndicator.querySelector('p').classList.add('text-red-400');
+        } finally {
+            chatInput.disabled = false;
+            chatButton.disabled = false;
+            chatInput.focus();
+        }
+    });
+
+    // --- Helper Functions ---
+    
+    function appendMessage(text, sender, isThinking = false) {
+        const msgWrapper = document.createElement('div');
+        const msgElement = document.createElement('p');
+        msgElement.textContent = text;
+        
+        msgWrapper.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
+        msgElement.className = sender === 'user' 
+            ? 'bg-blue-600 text-white rounded-lg p-3 max-w-xs'
+            : 'bg-gray-700 rounded-lg p-3 max-w-xs';
+            
+        if (isThinking) {
+            msgElement.classList.add('italic', 'text-gray-400');
+        }
+        
+        msgWrapper.appendChild(msgElement);
+        chatBox.appendChild(msgWrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return msgWrapper;
+    }
+
+    function updateStatus(text, color) {
+        let colorClasses = '';
+        let pingClasses = '';
+        
+        switch (color) {
+            case 'yellow':
+                colorClasses = 'text-yellow-500';
+                pingClasses = 'bg-yellow-400';
+                break;
+            case 'red':
+                colorClasses = 'text-red-500';
+                pingClasses = 'bg-red-400';
+                break;
+            default:
+                colorClasses = 'text-gray-400';
+                pingClasses = '';
+        }
+        
+        videoStatus.className = `flex items-center gap-2 text-sm font-semibold ${colorClasses}`;
+        
+        if (pingClasses) {
+            videoStatus.innerHTML = `
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${pingClasses} opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 ${pingClasses.replace('400', '500')}"></span>
+                </span>
+                ${text}
+            `;
+        } else {
+            videoStatus.innerHTML = text;
+        }
+    }
+
+    // --- INITIATE STREAM ON PAGE LOAD ---
+    startStream(videoUrl);
+});
+</script>
