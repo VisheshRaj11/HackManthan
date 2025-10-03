@@ -1,1 +1,73 @@
-<h1>This is header</h1>
+<% 
+// Define navigation links as an array of objects
+const navLinks = [
+    { href: "#", text: "Home" },
+    { href: "#about", text: "About" },
+    { href: "#services", text: "Services" },
+    { href: "#contact", text: "Contact" }
+]; 
+%>
+
+<header id="main-header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out">
+    <nav class="container mx-auto flex items-center justify-between p-4">
+        <div class="text-2xl md:text-4xl font-bold text-white">
+            <a href="#">MyWebsite</a>
+        </div>
+        
+        <ul class="hidden md:flex md:gap-10 md:text-lg items-center space-x-6 font-semibold text-white">
+            <% navLinks.forEach(link => { %>
+                <li>
+                    <a href="<%= link.href %>" class="hover:text-orange-400 transition-colors md:p-2 rounded hover:bg-white/10"><%= link.text %></a>
+                </li>
+            <% }) %>
+        </ul>
+
+        <button id="menu-button" class="md:hidden p-2 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+    </nav>
+</header>
+
+<div id="side-panel" class="fixed top-0 right-0 h-full w-64 bg-gray-900/80 backdrop-blur-lg z-[60] transform translate-x-full transition-transform duration-300 ease-in-out">
+    <div class="flex justify-end p-4">
+        <button id="close-button" class="p-2 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+    <ul class="flex flex-col items-center space-y-6 font-semibold text-white mt-8">
+        <% navLinks.forEach(link => { %>
+            <li>
+                <a href="<%= link.href %>" class="hover:text-cyan-400 transition-colors text-lg"><%= link.text %></a>
+            </li>
+        <% }) %>
+    </ul>
+</div>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-[55] hidden"></div>
+
+<script>
+    if (!document.getElementById('main-header').dataset.initialized) {
+        document.getElementById('main-header').dataset.initialized = 'true';
+        const header = document.getElementById('main-header');
+        const scrollClasses = ['bg-white/10', 'backdrop-blur-md', 'shadow-lg'];
+        window.addEventListener('scroll', () => {
+            if (header) {
+                if (window.scrollY > 50) { header.classList.add(...scrollClasses); } 
+                else { header.classList.remove(...scrollClasses); }
+            }
+        });
+        const menuButton = document.getElementById('menu-button');
+        const closeButton = document.getElementById('close-button');
+        const sidePanel = document.getElementById('side-panel');
+        const overlay = document.getElementById('overlay');
+        function openMenu() { if(sidePanel && overlay) { sidePanel.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); } }
+        function closeMenu() { if(sidePanel && overlay) { sidePanel.classList.add('translate-x-full'); overlay.classList.add('hidden'); } }
+        if (menuButton) menuButton.addEventListener('click', openMenu);
+        if (closeButton) closeButton.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+    }
+</script>
