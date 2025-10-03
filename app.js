@@ -90,8 +90,6 @@ app.get('/yourway', (req, res) => {
     });
 });
 
-
-// --- Visual Question Answering Route ---
 app.post("/ask-question", async (req, res) => {
   try {
     const { question, frame } = req.body;
@@ -105,6 +103,18 @@ app.post("/ask-question", async (req, res) => {
         .status(500)
         .json({ error: "Gemini API key is not configured on the server." });
     }
+    
+    // --- 🧠 NEW PROMPT LOGIC 🧠 ---
+    // The AI is now instructed to ALWAYS describe the scene,
+    // but to add a special keyword at the end if a critical event is found.
+    const priorityPrompt = `You are an AI assistant monitoring a road traffic camera feed. Your task is to answer the user's question about the scene.
+
+CRITICAL RULE: If your analysis of the image reveals a car accident, physical fight, severe traffic jam, or an injured person, you MUST describe the scene and then you MUST append the special keyword "yyeess" at the very end of your response.
+
+Example of an alert: "A two-car collision is visible in the center of the road. yyeess"
+Example of a normal response: "The traffic is flowing smoothly under a clear sky."
+
+Now, answer this question: "${question}"`;
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -115,7 +125,7 @@ app.post("/ask-question", async (req, res) => {
         contents: [
           {
             parts: [
-              { text: `Based on the image, answer this question concisely: "${question}"` },
+              { text: priorityPrompt },
               { inline_data: { mime_type: "image/jpeg", data: frame } },
             ],
           },
@@ -132,11 +142,24 @@ app.post("/ask-question", async (req, res) => {
     }
 
     const data = await response.json();
+    
     const answer =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() ||
       "Sorry, I couldn't get a clear answer.";
 
-    res.json({ answer });
+    // --- 🚨 NEW KEYWORD CHECK LOGIC 🚨 ---
+    const alertKeyword = 'yyeess';
+
+    if (answer.includes(alertKeyword)) {
+        // If the keyword is found, remove it from the text before sending
+        // it to the user and set the alert flag to true.
+        const cleanAnswer = answer.replace(alertKeyword, '').trim();
+        res.json({ answer: cleanAnswer, alert: true });
+    } else {
+        // Otherwise, send the answer normally.
+        res.json({ answer: answer, alert: false });
+    }
+
   } catch (err) {
     console.error("Error in /ask-question:", err.message);
     res.status(500).json({ error: "An internal server error occurred." });
