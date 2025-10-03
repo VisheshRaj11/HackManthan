@@ -1,45 +1,67 @@
 <% 
-const navLinks = [
-    { href: "#", text: "Home" },
-    { href: "#about", text: "About" },
-    { href: "#services", text: "Services" },
-    { href: "#contact", text: "Contact" },
-    { href: "#login", text: "Login" },
-    { href: "#signup", text: "Signup" },
-]; 
+// Main navigation links visible on desktop and in the mobile panel
+const mainNavLinks = [
+    { href: "/simulation", text: "Simulation", auth: user },
+    { href: "/yourWay", text: "YourWay", auth: user },
+    { href: "/#contact", text: "Contact", auth: true },
+];
 
-// Your Clerk URLs - replace with your actual URLs from the Clerk Dashboard
-const clerkSignInUrl = "https://wingsai.clerk.accounts.dev/sign-in?redirect_url=http://localhost:8080/";
-const clerkSignUpUrl = "https://wingsai.clerk.accounts.dev/sign-up?redirect_url=http://localhost:8080/";
-const clerkSignOutUrl = "https://wingsai.clerk.accounts.dev/sign-out?redirect_url=http://localhost:8080/";
+// User-specific links for the panel (excluding logout)
+const userPanelLinks = [
+    { href: "/user/profile", text: "View Profile", auth: user },
+];
+
+// A separate object for the logout link to place it at the end
+const logoutLink = { href: "/user/logout", text: "Sign Out", auth: user };
+
+// Links for guests (not logged in)
+const guestPanelLinks = [
+    { href: "/login", text: "Sign In", auth: !user },
+    { href: "/signup", text: "Sign Up", auth: !user },
+];
 %>
 
 <header id="main-header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out">
-    <nav class="container mx-auto flex items-center justify-between gap-12 p-2 py-3">
-        <div class="text-3xl md:text-3xl font-bold text-white flex items-center gap-2">
-          <img src="/wings.png" alt="wing" class="w-12">
-          <a href="/" class="">Wings AI</a>
+    <nav class="container mx-auto flex items-center justify-between gap-6 px-4 py-3">
+        <!-- Logo -->
+        <div class="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+            <img src="/wings.png" alt="wing" class="w-10 md:w-12">
+            <a href="/">Wings AI</a>
         </div>
         
-        <div class="hidden md:flex items-center gap-6 font-semibold text-white">
-            <ul class="flex items-center gap-6 md:text-lg">
-                <% navLinks.forEach(link => { %>
+        <!-- Desktop Navigation Links -->
+        <ul class="hidden md:flex items-center gap-12 md:text-lg font-semibold text-white">
+            <% mainNavLinks.forEach(link => { %>
+                <% if (link.auth) { %>
                     <li>
                         <a href="<%= link.href %>" class="hover:text-orange-400 transition-colors pb-1 hover:border-b hover:border-orange-300"><%= link.text %></a>
                     </li>
-                <% }) %>
-            </ul>
-        </div>
+                <% } %>
+            <% }) %>
+        </ul>
 
-        <button id="menu-button" class="md:hidden p-2 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-        </button>
+        <!-- Right Side Icons (Mobile Hamburger & Desktop User Icon) -->
+        <div class="flex items-center gap-2">
+            <!-- Desktop User Profile Icon (visible md and up) -->
+            <button id="user-menu-button" class="hidden md:block p-2 text-white rounded-full hover:bg-gray-700/50 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            
+            <!-- Mobile Hamburger Icon (hidden md and up) -->
+            <button id="mobile-menu-button" class="md:hidden p-2 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
     </nav>
 </header>
 
-<div id="side-panel" class="fixed top-0 right-0 h-full w-64 bg-gray-900/90 backdrop-blur-lg z-[60] transform translate-x-full transition-transform duration-300 ease-in-out">
+<!-- Universal Side Panel -->
+<div id="side-panel" class="fixed top-0 right-0 h-full w-72 bg-gray-900/90 backdrop-blur-lg z-[60] transform translate-x-full transition-transform duration-300 ease-in-out">
+    <!-- Close Button -->
     <div class="flex justify-end p-4">
         <button id="close-button" class="p-2 text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,8 +69,64 @@ const clerkSignOutUrl = "https://wingsai.clerk.accounts.dev/sign-out?redirect_ur
             </svg>
         </button>
     </div>
+    
+    <!-- Panel Content -->
+    <div class="px-6 py-2">
+        <!-- User Info Header -->
+        <% if (user) { %>
+            <div class="flex items-center gap-4 mb-6">
+                <img src="https://placehold.co/48x48/7c3aed/ffffff?text=<%= user.username.charAt(0).toUpperCase() %>" alt="User Avatar" class="w-12 h-12 rounded-full">
+                <div>
+                    <p class="font-bold text-lg text-white truncate"><%= user.username %></p>
+                    <p class="text-gray-400 text-sm">Welcome back!</p>
+                </div>
+            </div>
+        <% } else { %>
+             <div class="mb-6">
+                <p class="font-bold text-lg text-white">Welcome, Guest</p>
+                <p class="text-gray-400 text-sm">Sign in to get started.</p>
+            </div>
+        <% } %>
+        <hr class="border-gray-700">
+
+        <!-- Links Section -->
+        <ul class="flex flex-col space-y-2 font-semibold text-white mt-6 text-lg">
+            <!-- User Profile Link -->
+            <% if (user) { %>
+                <% userPanelLinks.forEach(link => { %>
+                    <% if (link.auth) { %>
+                        <li><a href="<%= link.href %>" class="block p-3 rounded-md hover:bg-gray-700/50"><%= link.text %></a></li>
+                    <% } %>
+                <% }) %>
+            <% } else { %>
+                <!-- Guest Links -->
+                <% guestPanelLinks.forEach(link => { %>
+                     <% if (link.auth) { %>
+                        <li><a href="<%= link.href %>" class="block p-3 rounded-md hover:bg-gray-700/50"><%= link.text %></a></li>
+                    <% } %>
+                <% }) %>
+            <% } %>
+
+            <!-- Main Nav Links (for mobile panel ONLY) -->
+            <div class="md:hidden pt-4 mt-4 border-t border-gray-700">
+                 <% mainNavLinks.forEach(link => { %>
+                    <% if (link.auth) { %>
+                        <li><a href="<%= link.href %>" class="block p-3 rounded-md hover:bg-gray-700/50"><%= link.text %></a></li>
+                    <% } %>
+                <% }) %>
+            </div>
+
+            <!-- Logout Link (at the end, only if logged in) -->
+            <% if (user && logoutLink.auth) { %>
+                <div class="pt-4 mt-4 border-t border-gray-700">
+                    <li><a href="<%= logoutLink.href %>" class="block p-3 rounded-md hover:bg-gray-700/50 text-red-400"><%= logoutLink.text %></a></li>
+                </div>
+            <% } %>
+        </ul>
+    </div>
 </div>
 
+<!-- Overlay for side panel -->
 <div id="overlay" class="fixed inset-0 bg-black/50 z-[55] hidden"></div>
 
 <script>
@@ -56,42 +134,46 @@ const clerkSignOutUrl = "https://wingsai.clerk.accounts.dev/sign-out?redirect_ur
     if (!document.getElementById('main-header').dataset.initialized) {
         document.getElementById('main-header').dataset.initialized = 'true';
 
+        // --- DOM Elements ---
         const header = document.getElementById('main-header');
-        const scrollClasses = ['bg-black/20', 'backdrop-blur-md', 'shadow-lg'];
-        
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            if (header) {
-                if (window.scrollY > 50) {
-                    header.classList.add(...scrollClasses);
-                } else {
-                    header.classList.remove(...scrollClasses);
-                }
-            }
-        });
-
-        // Side panel logic
-        const menuButton = document.getElementById('menu-button');
+        const userMenuButton = document.getElementById('user-menu-button');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
         const closeButton = document.getElementById('close-button');
         const sidePanel = document.getElementById('side-panel');
         const overlay = document.getElementById('overlay');
 
-        function openMenu() {
+        // --- Functions ---
+        const openMenu = () => {
             if (sidePanel && overlay) {
                 sidePanel.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
             }
-        }
+        };
 
-        function closeMenu() {
+        const closeMenu = () => {
             if (sidePanel && overlay) {
                 sidePanel.classList.add('translate-x-full');
                 overlay.classList.add('hidden');
             }
-        }
+        };
 
-        if (menuButton) menuButton.addEventListener('click', openMenu);
+        // --- Event Listeners ---
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            if (header) {
+                header.classList.toggle('bg-black/20', window.scrollY > 50);
+                header.classList.toggle('backdrop-blur-md', window.scrollY > 50);
+                header.classList.toggle('shadow-lg', window.scrollY > 50);
+            }
+        });
+
+        // Open panel with either button
+        if (userMenuButton) userMenuButton.addEventListener('click', openMenu);
+        if (mobileMenuButton) mobileMenuButton.addEventListener('click', openMenu);
+        
+        // Close panel
         if (closeButton) closeButton.addEventListener('click', closeMenu);
         if (overlay) overlay.addEventListener('click', closeMenu);
     }
 </script>
+

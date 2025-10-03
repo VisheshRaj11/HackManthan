@@ -1,0 +1,190 @@
+<% layout("layouts/boilerplate") %>
+<% layout("layouts/boilerplate") %>
+
+<section class="relative min-h-screen bg-gray-900 text-white flex items-center justify-center p-4 overflow-hidden">
+
+    <div id="particles-js" class="absolute inset-0 z-0"></div>
+
+    <div class="relative z-10 w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden mt-24 mb-16">
+        
+        <div class="hidden md:flex flex-col items-center justify-center w-full md:w-1/2 p-12 bg-gradient-to-br from-gray-900 to-gray-800">
+            <img src="/wings.png" alt="Website Logo" class="w-20 h-20 mb-4">
+            <h1 class="text-4xl font-bold tracking-tight">Wings AI</h1>
+            <p class="text-gray-400 mt-3 text-center">
+                Your AI-powered journey starts here.
+            </p>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 sm:p-12 flex flex-col items-center justify-center">
+            <div class="w-full max-w-sm">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold">Create Account</h2>
+                    <p class="text-gray-400 mt-2">Get started with a new account</p>
+                </div>
+
+                <form action="/user/signup" method="POST">
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-300 text-sm font-bold mb-2">Username</label>
+                        <input type="text" id="username" name="username" placeholder="YourUsername" required class="w-full bg-gray-700 text-white rounded-lg py-3 px-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-300 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required class="w-full bg-gray-700 text-white rounded-lg py-3 px-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <div class="mb-6">
+                         <label for="password" class="block text-gray-300 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required class="w-full bg-gray-700 text-white rounded-lg py-3 px-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+                        Sign Up
+                    </button>
+                </form>
+
+                <div class="my-6 flex items-center">
+                    <div class="flex-grow border-t border-gray-700"></div>
+                    <span class="mx-4 text-gray-500 text-sm">OR</span>
+                    <div class="flex-grow border-t border-gray-700"></div>
+                </div>
+
+                <a href="/auth/google" class="w-full bg-white text-gray-800 font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <svg class="w-6 h-6 mr-3" viewBox="0 0 48 48">
+                        <path fill="#4285F4" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
+                        <path fill="#34A853" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path>
+                        <path fill="#FBBC05" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
+                        <path fill="#EA4335" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.021 35.596 44 30.134 44 24c0-1.341-.138-2.65-.389-3.917z"></path>
+                    </svg>
+                    <span>Sign up with Google</span>
+                </a>
+
+                <div class="text-center mt-6">
+                    <p class="text-sm text-gray-400">
+                        Already have an account? 
+                        <a href="/login" class="font-semibold text-blue-400 hover:text-blue-300">Log In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob { 
+        animation: blob 8s infinite ease-in-out; 
+    }
+    .animation-delay-4000 { 
+        animation-delay: 4s; 
+    }
+</style>
+
+<style>
+    /* Entrance animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp {
+        animation: fadeInUp 1s ease-out forwards;
+        opacity: 0; 
+    }
+
+    /* Keyframes for the scanning line effect */
+    @keyframes scan {
+        0% { transform: translateX(-100%) skewX(-20deg); }
+        100% { transform: translateX(600%); }
+    }
+    .scanner-shine {
+        position: absolute; top: 0; left: 0;
+        width: 20%; height: 100%;
+        background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        filter: blur(3px);
+        animation: scan 3.5s infinite linear;
+        animation-delay: 1s;
+    }
+    /* Set z-index for particles canvas */
+    #particles-js {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<script>
+// --- HERO TYPING SCRIPT ---
+if (!window.heroScriptInitialized) {
+    window.heroScriptInitialized = true;
+    const texts = [ "Start Your Safe Journey", "Navigate the Skies with Confidence", "AI-Powered Protection at Every Turn", "Experience Smarter, Safer Travel" ];
+    const typingElement = document.getElementById("typing-text");
+    let lineIndex = 0, charIndex = 0;
+    const typingDelay = 100, lineDelay = 2000;
+
+    function typeLine() {
+        if (typingElement && charIndex < texts[lineIndex].length) {
+            typingElement.childNodes[0].nodeValue += texts[lineIndex].charAt(charIndex);
+            charIndex++;
+            setTimeout(typeLine, typingDelay);
+        } else { setTimeout(eraseLine, lineDelay); }
+    }
+
+    function eraseLine() {
+        if (typingElement && charIndex > 0) {
+            typingElement.childNodes[0].nodeValue = texts[lineIndex].substring(0, charIndex - 1);
+            charIndex--;
+            setTimeout(eraseLine, 50);
+        } else {
+            lineIndex = (lineIndex + 1) % texts.length;
+            setTimeout(typeLine, 500);
+        }
+    }
+    
+    if (typingElement) {
+        typingElement.appendChild(document.createTextNode(''));
+        const cursorSpan = document.createElement('span');
+        cursorSpan.style.cssText = "border-left: 2px solid white; margin-left: 5px; animation: blink 1s step-end infinite;";
+        if (!document.querySelector('#blink-style')) {
+            const styleSheet = document.createElement("style");
+            styleSheet.id = 'blink-style';
+            styleSheet.innerText = `@keyframes blink { from, to { border-color: transparent } 50% { border-color: white; } }`;
+            document.head.appendChild(styleSheet);
+        }
+        typingElement.appendChild(cursorSpan);
+        setTimeout(typeLine, 1200);
+    }
+}
+
+// --- PARTICLES.JS INITIALIZATION SCRIPT ---
+if (document.getElementById('particles-js')) {
+    particlesJS('particles-js', {
+        "particles": {
+            "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": "#ffffff" },
+            "shape": { "type": "circle", "stroke": { "width": 0, "color": "#000000" } },
+            "opacity": { "value": 0.5, "random": false, "anim": { "enable": false } },
+            "size": { "value": 3, "random": true, "anim": { "enable": false } },
+            "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2, "width": 1 },
+            "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+            "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } }, "push": { "particles_nb": 4 } }
+        },
+        "retina_detect": true
+    });
+}
+</script>
