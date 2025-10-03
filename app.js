@@ -77,7 +77,7 @@ async function analyzeFrame(frameData, analysisType = "automatic") {
         - Extremely heavy traffic causing severe blockage
         
         If you detect a critical situation as described above, append the special keyword "yyeess" at the very end of your response. 
-        Otherwise, do not include it. 
+        Otherwise, do not include it.
         
         Always keep your description polite, professional, and concise.
         `;
