@@ -1,0 +1,246 @@
+<% layout("layouts/boilerplate") %>
+<div class="min-h-screen bg-gray-900 text-white p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-12 mt-16">
+      <h1 class="text-4xl font-bold mb-4 text-gray-500">Traffic Safety Awareness</h1>
+      <p class="text-gray-300 text-lg max-w-3xl mx-auto">
+        Understanding traffic accident statistics is the first step toward creating safer roads for everyone.
+      </p>
+      <div class="mt-4 flex justify-center items-center space-x-2">
+        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-gray-400">Live data updates every 10 seconds</span>
+      </div>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-gray-800 rounded-lg p-6 text-center">
+        <h3 class="text-2xl font-bold text-red-400" id="dailyDeaths">3,700+</h3>
+        <p class="text-gray-300">Daily Deaths Worldwide</p>
+        <div class="mt-2 text-xs text-gray-500">Updated: <span id="lastUpdateTime">Just now</span></div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6 text-center">
+        <h3 class="text-2xl font-bold text-yellow-400" id="annualFatalities">1.35 Million</h3>
+        <p class="text-gray-300">Annual Road Fatalities</p>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-6 text-center">
+        <h3 class="text-2xl font-bold text-green-400" id="reductionTarget">-5%</h3>
+        <p class="text-gray-300">Target Reduction by 2030</p>
+      </div>
+    </div>
+
+    <!-- Main Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <!-- Daily Deaths Chart -->
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h2 class="text-2xl font-bold mb-4">Daily Traffic Deaths Trend</h2>
+        <div class="h-80">
+          <canvas id="dailyDeathsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Accident Causes Chart -->
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h2 class="text-2xl font-bold mb-4">Accident Causes Distribution</h2>
+        <div class="h-80">
+          <canvas id="causesChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time-based Chart -->
+    <div class="bg-gray-800 rounded-xl p-6 mb-12">
+      <h2 class="text-2xl font-bold mb-4">Monthly Accident Statistics</h2>
+      <div class="h-96">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Prevention Tips -->
+    <div class="bg-gray-800 rounded-xl p-8">
+      <h2 class="text-3xl font-bold mb-6 text-center">How You Can Help</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🚗</span>
+          </div>
+          <h3 class="font-bold mb-2">Drive Sober</h3>
+          <p class="text-gray-300 text-sm">Never drive under the influence of alcohol or drugs</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">📱</span>
+          </div>
+          <h3 class="font-bold mb-2">Avoid Distractions</h3>
+          <p class="text-gray-300 text-sm">No mobile phone use while driving</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">⚡</span>
+          </div>
+          <h3 class="font-bold mb-2">Follow Speed Limits</h3>
+          <p class="text-gray-300 text-sm">Adjust speed to road conditions</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🛡️</span>
+          </div>
+          <h3 class="font-bold mb-2">Use Safety Gear</h3>
+          <p class="text-gray-300 text-sm">Seat belts and helmets save lives</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Chart instances
+  let dailyDeathsChart, causesChart, monthlyChart;
+
+  // Function to generate random data with slight variations
+  function generateRandomData(baseData, variation = 0.1) {
+    return baseData.map(value => {
+      const change = value * variation;
+      return Math.max(0, value + (Math.random() * change * 2 - change));
+    });
+  }
+
+  // Function to update all charts
+  function updateCharts() {
+    // Update daily deaths chart
+    const newDailyData = generateRandomData([3200, 3400, 3800, 3600, 4000, 4200, 3800], 0.05);
+    dailyDeathsChart.data.datasets[0].data = newDailyData;
+    dailyDeathsChart.update('none');
+
+    // Update causes chart
+    const newCausesData = generateRandomData([35, 25, 20, 12, 8], 0.1);
+    // Normalize to 100%
+    const total = newCausesData.reduce((a, b) => a + b, 0);
+    const normalizedData = newCausesData.map(value => Math.round((value / total) * 100));
+    causesChart.data.datasets[0].data = normalizedData;
+    causesChart.update('none');
+
+    // Update monthly chart
+    const newMonthlyData = generateRandomData([4200, 3900, 4100, 3800, 4000, 4300, 4500, 4400, 4200, 4000, 3900, 4300], 0.03);
+    monthlyChart.data.datasets[0].data = newMonthlyData;
+    monthlyChart.update('none');
+
+    // Update stats cards
+    document.getElementById('dailyDeaths').textContent = Math.round(newDailyData.reduce((a, b) => a + b, 0) / 7).toLocaleString() + '+';
+    document.getElementById('annualFatalities').textContent = Math.round(newMonthlyData.reduce((a, b) => a + b, 0) / 10).toLocaleString() + 'K';
+    
+    // Update timestamp
+    document.getElementById('lastUpdateTime').textContent = new Date().toLocaleTimeString();
+  }
+
+  // Initialize charts
+  document.addEventListener('DOMContentLoaded', function() {
+    // Daily Deaths Line Chart
+    const dailyCtx = document.getElementById('dailyDeathsChart').getContext('2d');
+    dailyDeathsChart = new Chart(dailyCtx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Deaths per Day',
+          data: [3200, 3400, 3800, 3600, 4000, 4200, 3800],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: '#fff' }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fff' }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fff' }
+          }
+        }
+      }
+    });
+
+    // Causes Doughnut Chart
+    const causesCtx = document.getElementById('causesChart').getContext('2d');
+    causesChart = new Chart(causesCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Speeding', 'Drunk Driving', 'Distraction', 'Weather', 'Other'],
+        datasets: [{
+          data: [35, 25, 20, 12, 8],
+          backgroundColor: [
+            '#ef4444',
+            '#f59e0b',
+            '#3b82f6',
+            '#6b7280',
+            '#10b981'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#fff', padding: 20 }
+          }
+        }
+      }
+    });
+
+    // Monthly Bar Chart
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    monthlyChart = new Chart(monthlyCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Fatal Accidents',
+          data: [4200, 3900, 4100, 3800, 4000, 4300, 4500, 4400, 4200, 4000, 3900, 4300],
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: '#3b82f6',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: '#fff' }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fff' }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fff' }
+          }
+        }
+      }
+    });
+
+    // Update charts every 10 seconds
+    setInterval(updateCharts, 10000);
+  });
+</script>

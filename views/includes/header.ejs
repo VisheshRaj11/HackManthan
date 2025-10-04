@@ -3,12 +3,12 @@
 const mainNavLinks = [
     { href: "/analysis", text: "Analysis", auth: user },
     { href: "/yourWay", text: "YourWay", auth: user },
-    { href: "/#contact", text: "Contact", auth: true },
+    { href: "/awareness", text: "Awareness", auth: true },
 ];
 
 // User-specific links for the panel (excluding logout)
 const userPanelLinks = [
-    { href: "/user/profile", text: "View Profile", auth: user },
+    { href: "/profile", text: "View Profile", auth: user },
 ];
 
 // A separate object for the logout link to place it at the end
@@ -30,7 +30,7 @@ const guestPanelLinks = [
         </div>
         
         <!-- Desktop Navigation Links -->
-        <ul class="hidden md:flex items-center gap-12 md:text-lg font-semibold text-white">
+        <ul class="hidden md:flex items-center gap-12 lg:gap-24 md:text-lg font-semibold text-white">
             <% mainNavLinks.forEach(link => { %>
                 <% if (link.auth) { %>
                     <li>
@@ -90,7 +90,7 @@ const guestPanelLinks = [
         <hr class="border-gray-700">
 
         <!-- Links Section -->
-        <ul class="flex flex-col space-y-2 font-semibold text-white mt-6 text-lg">
+        <ul class="flex flex-col space-y-2 font-semibold text-white text-lg mt-2">
             <!-- User Profile Link -->
             <% if (user) { %>
                 <% userPanelLinks.forEach(link => { %>
@@ -111,7 +111,7 @@ const guestPanelLinks = [
             <div class="md:hidden pt-4 mt-4 border-t border-gray-700">
                  <% mainNavLinks.forEach(link => { %>
                     <% if (link.auth) { %>
-                        <li><a href="<%= link.href %>" class="block p-3 rounded-md hover:bg-gray-700/50"><%= link.text %></a></li>
+                        <li><a href="<%= link.href %>" class="block rounded-md hover:bg-gray-700/50"><%= link.text %></a></li>
                     <% } %>
                 <% }) %>
             </div>
