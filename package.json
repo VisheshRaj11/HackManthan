@@ -1,4 +1,9 @@
 {
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js",
+        "dev": "nodemon app.js"
+    },
     "type": "module",
     "dependencies": {
         "@clerk/clerk-sdk-node": "^4.13.23",
