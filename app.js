@@ -203,7 +203,7 @@ app.get("/analysis", (req, res) => {
 
 app.get('/yourway', (req, res) => {
   // console.log(process.env.GOOGLE_MAP_API);
-  res.render('includes/yourway.ejs',{
+  res.render('includes/yourWay.ejs',{
         GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAP_API,
     });
 });
