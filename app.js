@@ -62,7 +62,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: `${process.env.BASE_URL}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -91,80 +91,74 @@ if (!GEMINI_API_KEY) {
   console.warn("⚠️ WARNING: GEMINI_API_KEY is not set in the .env file.");
 }
 
-// --- NEW: AUTO ANALYSIS FUNCTION (Reusable for both manual and automatic analysis) ---
-async function analyzeFrame(frameData, analysisType = "automatic") {
-    try {
-        const prompt = analysisType  = `
-        You are an AI assistant monitoring a road traffic camera feed. 
-        Please describe the scene politely and clearly, focusing on:
-        - Vehicle movement and traffic flow
-        - Any unusual activities or incidents
-        - Weather and road conditions
-        - Pedestrian activity if visible
-        
-        ONLY mark a situation as critical if it involves:
-        - A car accident
-        - A physical fight or confrontation
-        - Fire or hazardous situation
-        - Extremely heavy traffic causing severe blockage
-        
-        If you detect a critical situation as described above, append the special keyword "yyeess" at the very end of your response. 
-        Otherwise, do not include it.
-        
-        Always keep your description polite, professional, and concise.
-        `;
-        
+async function analyzeFrame(frameData, question = null, analysisType = "automatic") {
+  try {
+      // --- Build the prompt dynamically ---
+      let prompt;
+      if (analysisType === "manual" && question) {
+          prompt = `
+              You are an AI assistant analyzing an image. 
+              The user asked: "${question}"
+              Please answer politely, clearly, and focus only on what is visible in the image.
+              If any critical situation is detected (accident, fight, fire, severe traffic blockage), append the keyword "yyeess" at the end.
+          `;
+      } else {
+          // Automatic analysis prompt
+          prompt = `
+              You are an AI assistant monitoring a road traffic camera feed. 
+              Please describe the scene politely and clearly, focusing on:
+              - Vehicle movement and traffic flow
+              - Any unusual activities or incidents
+              - Weather and road conditions
+              - Pedestrian activity if visible
+              
+              ONLY mark a situation as critical if it involves:
+              - A car accident
+              - A physical fight or confrontation
+              - Fire or hazardous situation
+              - Extremely heavy traffic causing severe blockage
+              
+              If you detect a critical situation as described above, append the special keyword "yyeess" at the very end of your response.
+          `;
+      }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
 
-        const requestBody = analysisType === "automatic" 
-            ? {
-                contents: [
-                    {
-                        parts: [
-                            { text: prompt },
-                            { inline_data: { mime_type: "image/jpeg", data: frameData } },
-                        ],
-                    },
-                ],
-            }
-            : {
-                contents: [
-                    {
-                        parts: [
-                            { text: prompt },
-                            { inline_data: { mime_type: "image/jpeg", data: frameData } },
-                        ],
-                    },
-                ],
-            };
+      const requestBody = {
+          contents: [
+              {
+                  parts: [
+                      { text: prompt },
+                      { inline_data: { mime_type: "image/jpeg", data: frameData } }
+                  ]
+              }
+          ]
+      };
 
-        const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-        });
+      const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Gemini API Error:", JSON.stringify(errorData, null, 2));
-            throw new Error(errorData?.error?.message || "An unknown error occurred with the AI model.");
-        }
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData?.error?.message || "Gemini API error");
+      }
 
-        const data = await response.json();
-        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || "No analysis available.";
+      const data = await response.json();
+      const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || "No analysis available.";
 
-        // Check for alert keyword
-        const alertKeyword = 'yyeess';
-        const hasAlert = answer.includes(alertKeyword);
-        const cleanAnswer = hasAlert ? answer.replace(alertKeyword, '').trim() : answer;
+      const alertKeyword = 'yyeess';
+      const hasAlert = answer.includes(alertKeyword);
+      const cleanAnswer = hasAlert ? answer.replace(alertKeyword, '').trim() : answer;
 
-        return { answer: cleanAnswer, alert: hasAlert };
+      return { answer: cleanAnswer, alert: hasAlert };
 
-    } catch (err) {
-        console.error("Error in analyzeFrame:", err.message);
-        throw err;
-    }
+  } catch (err) {
+      console.error("Error in analyzeFrame:", err.message);
+      throw err;
+  }
 }
 
 // --- Routes ---
@@ -252,12 +246,7 @@ app.post("/ask-question", async (req, res) => {
       return res.status(400).json({ error: "Missing question or frame data." });
     }
 
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-    if (!GEMINI_API_KEY) {
-      return res.status(500).json({ error: "Gemini API key is not configured on the server." });
-    }
-
-    const result = await analyzeFrame(frame, "manual");
+    const result = await analyzeFrame(frame, question, "manual");
     res.json({ answer: result.answer, alert: result.alert });
 
   } catch (err) {
@@ -265,6 +254,7 @@ app.post("/ask-question", async (req, res) => {
     res.status(500).json({ error: "An internal server error occurred." });
   }
 });
+
 
 // --- NEW: Cached auto-analysis for 15-second interval ---
 let lastAutoResult = null;

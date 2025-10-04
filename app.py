@@ -9,7 +9,10 @@ import logging
 app = Flask(__name__)
 
 # UPDATED: Configure CORS to specifically allow your frontend's origin.
-CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:8080",
+    "https://hackmanthan.onrender.com"
+]}});
 
 # --- Global State ---
 app_state = {
