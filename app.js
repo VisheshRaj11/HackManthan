@@ -11,6 +11,8 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { User } from "./models/user.model.js";
+import passport from "passport";
+import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 
 dotenv.config();
 
@@ -53,6 +55,39 @@ app.use(async (req, res, next) => {
         next();
     }
 });
+
+
+
+// --- Passport Google OAuth setup ---
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let currentUser = await User.findOne({ googleId: profile.id });
+        if (currentUser) {
+          return done(null, currentUser);
+        }
+        const newUser = await new User({
+          googleId: profile.id,
+          username: profile.displayName,
+          email: profile.emails[0].value,
+          imageUrl: profile.photos[0].value,
+        }).save();
+        done(null, newUser);
+      } catch (error) {
+        done(error, null);
+      }
+    }
+  )
+);
+
+app.use(passport.initialize());
+
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) {
@@ -156,9 +191,29 @@ app.get("/analysis", (req, res) => {
 
 app.get('/yourway', (req, res) => {
   res.render('includes/yourway.ejs',{
-        GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAP_API 
+        GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAP_API,
     });
 });
+
+// Google Auth routes
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login", session: false }),
+  (req, res) => {
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    res.cookie("token", token, { httpOnly: true });
+    res.redirect("/");
+  }
+);
+
+app.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/");
+});
+
+
 
 // --- UPDATED: User Question Endpoint (uses the shared analyzeFrame function) ---
 app.post("/ask-question", async (req, res) => {
