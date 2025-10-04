@@ -1,7 +1,6 @@
 <% layout("layouts/boilerplate") %>
 
 <div class="bg-gray-900 text-white min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
-
     <div class="w-full max-w-7xl mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row mt-20 lg:mt-24 mb-8 lg:mb-16 lg:h-[85vh]">
 
         <!-- Left Panel: Inputs & Route List -->
@@ -40,10 +39,10 @@
             <!-- Status Panel -->
             <div id="status-panel" class="text-center text-yellow-400 text-sm py-2 h-8"></div>
 
-            <!-- Directions / Routes List -->
+            <!-- Routes List -->
             <div class="h-96 lg:flex-grow bg-gray-900/50 rounded-lg overflow-y-auto p-3">
-                <div id="directions-panel" class="text-sm">
-                    <p class="text-gray-500">Your route instructions will appear here.</p>
+                <div id="routes-list" class="space-y-3">
+                    <p class="text-gray-500 text-center py-4">Your routes will appear here.</p>
                 </div>
             </div>
         </div>
@@ -59,10 +58,11 @@
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= GOOGLE_MAPS_API_KEY %>&libraries=places&callback=initMap"></script>
 
 <script>
-let map, directionsService;
+let map, directionsService, directionsRenderer;
 let routeRenderers = [];
 let trafficLayer;
 let autocompleteOrigin, autocompleteDestination;
+let currentRoutes = [];
 
 // Initialize Map
 function initMap() {
@@ -71,7 +71,7 @@ function initMap() {
         zoom: 5,
         disableDefaultUI: true,
         zoomControl: true,
-        styles: [ // Dark mode
+        styles: [
             { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
             { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
             { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
@@ -81,8 +81,11 @@ function initMap() {
     });
 
     directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({ map: null });
+    
+    // Initialize traffic layer but don't show it by default
     trafficLayer = new google.maps.TrafficLayer();
-    trafficLayer.setMap(map);
+    trafficLayer.setMap(null); // Hide initially
 
     const originInput = document.getElementById('origin-input');
     const destinationInput = document.getElementById('destination-input');
@@ -122,12 +125,12 @@ function getCurrentLocation() {
     }
 }
 
-// Calculate routes
+// Calculate and display multiple routes
 function calculateAndDisplayRoute() {
     const origin = document.getElementById('origin-input').value;
     const destination = document.getElementById('destination-input').value;
     const statusPanel = document.getElementById('status-panel');
-    const panel = document.getElementById('directions-panel');
+    const routesList = document.getElementById('routes-list');
 
     if (!origin || !destination) {
         statusPanel.textContent = 'Please enter both an origin and a destination.';
@@ -135,57 +138,168 @@ function calculateAndDisplayRoute() {
     }
 
     statusPanel.textContent = 'Calculating routes...';
-    panel.innerHTML = '';
+    routesList.innerHTML = '';
 
     // Clear old routes
     routeRenderers.forEach(r => r.setMap(null));
     routeRenderers = [];
+    currentRoutes = [];
 
     const request = {
         origin: origin,
         destination: destination,
         travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true
+        provideRouteAlternatives: true,
+        drivingOptions: {
+            departureTime: new Date(), // Current time for traffic data
+            trafficModel: 'bestguess'
+        }
     };
 
     directionsService.route(request, (result, status) => {
         if (status === 'OK') {
-            statusPanel.textContent = '';
+            statusPanel.textContent = `Found ${result.routes.length} route(s)`;
+            
+            // Store routes globally
+            currentRoutes = result.routes;
             
             result.routes.forEach((route, index) => {
                 const renderer = new google.maps.DirectionsRenderer({
-                    map: map,
+                    map: null, // Don't show on map initially
                     directions: result,
                     routeIndex: index,
+                    preserveViewport: true,
                     polylineOptions: {
-                        strokeColor: index === 0 ? "#4285F4" : "#999999",
-                        strokeWeight: 5,
-                        strokeOpacity: 0.8,
+                        strokeColor: getRouteColor(index),
+                        strokeWeight: 6,
+                        strokeOpacity: 0.7,
                     },
                     suppressMarkers: false,
                 });
                 routeRenderers.push(renderer);
 
+                // Create route card
+                const routeCard = document.createElement('div');
+                routeCard.className = "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
+                routeCard.dataset.routeIndex = index;
+                
                 const leg = route.legs[0];
-                const div = document.createElement('div');
-                div.className = "cursor-pointer p-2 mb-2 rounded bg-gray-700 hover:bg-gray-600 transition";
-                div.innerHTML = `<strong>Route ${index+1}</strong><br>${leg.start_address} → ${leg.end_address}<br>Distance: ${leg.distance.text}, Duration: ${leg.duration.text}`;
+                const hasTrafficData = leg.duration_in_traffic != null;
+                const trafficDuration = hasTrafficData ? leg.duration_in_traffic.text : 'N/A';
+                const trafficDiff = hasTrafficData ? 
+                    Math.round((leg.duration_in_traffic.value - leg.duration.value) / 60) : 0;
+                
+                routeCard.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-4 h-4 rounded-full" style="background-color: ${getRouteColor(index)}"></div>
+                                <strong class="text-white">Route ${index + 1}</strong>
+                            </div>
+                            <div class="text-sm text-gray-300 space-y-1">
+                                <div><span class="text-gray-400">Distance:</span> ${leg.distance.text}</div>
+                                <div><span class="text-gray-400">Normal Time:</span> ${leg.duration.text}</div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-gray-400">With Traffic:</span> 
+                                    <span class="${getTrafficColorClass(trafficDiff)} font-medium">${trafficDuration}</span>
+                                    ${trafficDiff !== 0 ? 
+                                        `<span class="text-xs ${trafficDiff > 0 ? 'text-red-400' : 'text-green-400'}">
+                                            (${trafficDiff > 0 ? '+' : ''}${trafficDiff} min)
+                                        </span>` : ''
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <button class="view-route-btn ml-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors">
+                            View
+                        </button>
+                    </div>
+                `;
 
-                div.addEventListener('click', () => {
-                    routeRenderers.forEach((r, i) => {
-                        r.setOptions({ polylineOptions: { strokeColor: "#999999", strokeWeight: 4, strokeOpacity: 0.5 } });
-                    });
-                    renderer.setOptions({ polylineOptions: { strokeColor: "#4285F4", strokeWeight: 6, strokeOpacity: 1 } });
-                    map.fitBounds(route.bounds);
+                // Add click event to show this route on map
+                routeCard.addEventListener('click', () => showRouteOnMap(index));
+                
+                // Also make the button work
+                routeCard.querySelector('.view-route-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showRouteOnMap(index);
                 });
 
-                panel.appendChild(div);
+                routesList.appendChild(routeCard);
             });
+
+            // Show first route by default
+            if (result.routes.length > 0) {
+                setTimeout(() => showRouteOnMap(0), 100);
+            }
 
         } else {
             statusPanel.textContent = 'Directions request failed: ' + status;
-            panel.innerHTML = '<p class="text-gray-500">Could not find a route. Please try different locations.</p>';
+            routesList.innerHTML = '<p class="text-gray-500 text-center py-4">Could not find a route. Please try different locations.</p>';
         }
     });
+}
+
+// Show specific route on map
+function showRouteOnMap(routeIndex) {
+    // Hide all routes first
+    routeRenderers.forEach(renderer => {
+        renderer.setMap(null);
+    });
+    
+    // Hide traffic layer first
+    trafficLayer.setMap(null);
+    
+    // Show selected route
+    const selectedRenderer = routeRenderers[routeIndex];
+    if (selectedRenderer) {
+        selectedRenderer.setMap(map);
+        
+        // Update polyline to be more prominent
+        selectedRenderer.setOptions({
+            polylineOptions: {
+                strokeColor: getRouteColor(routeIndex),
+                strokeWeight: 8,
+                strokeOpacity: 1,
+            }
+        });
+        
+        // Fit map to route bounds
+        const route = currentRoutes[routeIndex];
+        map.fitBounds(route.bounds);
+        
+        // Show traffic layer for this route
+        trafficLayer.setMap(map);
+        
+        // Update route card styles
+        updateRouteCardStyles(routeIndex);
+    }
+}
+
+// Update route card styles when selected
+function updateRouteCardStyles(selectedIndex) {
+    const routeCards = document.querySelectorAll('#routes-list > div');
+    routeCards.forEach((card, index) => {
+        if (index === selectedIndex) {
+            card.className = "cursor-pointer p-3 rounded-lg bg-blue-900/30 hover:bg-blue-900/40 transition-all border-2 border-blue-500";
+        } else {
+            card.className = "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
+        }
+    });
+}
+
+// Get color for route based on index
+function getRouteColor(index) {
+    const colors = ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#8B5CF6'];
+    return colors[index % colors.length];
+}
+
+// Get traffic color class based on delay
+function getTrafficColorClass(trafficDiff) {
+    if (trafficDiff > 15) return 'text-red-400';
+    if (trafficDiff > 5) return 'text-orange-400';
+    if (trafficDiff > 0) return 'text-yellow-400';
+    if (trafficDiff < 0) return 'text-green-400';
+    return 'text-gray-300';
 }
 </script>
