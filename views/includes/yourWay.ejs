@@ -1,61 +1,62 @@
 <% layout("layouts/boilerplate") %>
 
 <div class="relative bg-gray-900 text-white min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
-    <!-- Particle Background -->
-    <div id="particles-js" class="absolute inset-0 z-0"></div>
+  <!-- Particle Background -->
+  <div id="particles-js" class="absolute inset-0 z-0"></div>
 
-    <!-- Foreground Content -->
-    <div class="relative z-10 w-full max-w-7xl mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row mt-20 lg:mt-24 mb-8 lg:mb-16 lg:h-[85vh]">
+  <!-- Foreground Content -->
+  <div class="relative z-10 w-full max-w-7xl mx-auto bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row mt-20 lg:mt-24 mb-8 lg:mb-16 lg:h-[85vh]">
 
-        <!-- Left Panel: Inputs & Route List -->
-        <div class="w-full lg:w-1/3 flex flex-col p-6 space-y-4">
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white">Route Planner</h1>
-                <p class="text-gray-400">Enter a starting point and destination to find the best route.</p>
-            </div>
+    <!-- Left Panel -->
+    <div class="w-full lg:w-1/3 flex flex-col p-6 space-y-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white">Your Journey</h1>
+        <p class="text-gray-400">Enter a starting point and destination to find the best route.</p>
+      </div>
 
-            <div class="space-y-4">
-                <!-- Origin Input -->
-                <div>
-                    <label for="origin-input" class="block text-sm font-medium text-gray-300 mb-1">Origin</label>
-                    <div class="relative flex items-center">
-                        <input type="text" id="origin-input" placeholder="e.g., Mumbai, India" class="w-full bg-gray-700 text-white rounded-lg py-2 pl-3 pr-10 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                        <button id="get-location-btn" class="absolute right-2 p-1 text-gray-400 hover:text-white transition-colors" title="Use my current location">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Destination Input -->
-                <div>
-                    <label for="destination-input" class="block text-sm font-medium text-gray-300 mb-1">Destination</label>
-                    <input type="text" id="destination-input" placeholder="e.g., Delhi, India" class="w-full bg-gray-700 text-white rounded-lg py-2 px-3 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                </div>
-            </div>
-
-            <!-- Get Route Button -->
-            <button id="get-route-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
-                Get Directions
+      <div class="space-y-4">
+        <!-- Origin -->
+        <div>
+          <label for="origin-input" class="block text-sm font-medium text-gray-300 mb-1">Origin</label>
+          <div class="relative flex items-center">
+            <input type="text" id="origin-input" placeholder="e.g., Mumbai, India" class="w-full bg-gray-700 text-white rounded-lg py-2 pl-3 pr-10 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <button id="get-location-btn" class="absolute right-2 p-1 text-gray-400 hover:text-white transition-colors" title="Use my current location">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+              </svg>
             </button>
-
-            <!-- Status Panel -->
-            <div id="status-panel" class="text-center text-yellow-400 text-sm py-2 h-8"></div>
-
-            <!-- Routes List -->
-            <div class="h-96 lg:flex-grow bg-gray-900/50 rounded-lg overflow-y-auto p-3">
-                <div id="routes-list" class="space-y-3">
-                    <p class="text-gray-500 text-center py-4">Your routes will appear here.</p>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <!-- Right Panel: Map -->
-        <div class="w-full lg:w-2/3 h-96 lg:h-full bg-gray-700">
-            <div id="map" class="w-full h-full"></div>
+        <!-- Destination -->
+        <div>
+          <label for="destination-input" class="block text-sm font-medium text-gray-300 mb-1">Destination</label>
+          <input type="text" id="destination-input" placeholder="e.g., Delhi, India" class="w-full bg-gray-700 text-white rounded-lg py-2 px-3 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
         </div>
+      </div>
+
+      <!-- Get Route Button -->
+      <button id="get-route-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+        Get Directions
+      </button>
+
+      <!-- Status Panel -->
+      <div id="status-panel" class="text-center text-yellow-400 text-sm py-2 h-8"></div>
+
+      <!-- Routes List -->
+      <div class="h-96 lg:flex-grow bg-gray-900/50 rounded-lg overflow-y-auto p-3 hide-scrollbar">
+        <div id="routes-list" class="space-y-3">
+          <p class="text-gray-500 text-center py-4">Your routes will appear here.</p>
+        </div>
+      </div>
     </div>
+
+    <!-- Right Panel: Map -->
+    <div class="w-full lg:w-2/3 h-96 lg:h-full bg-gray-700">
+      <div id="map" class="w-full h-full"></div>
+    </div>
+
+  </div>
 </div>
 
 <!-- Google Maps API -->
@@ -64,279 +65,205 @@
 <!-- Particles.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
-<!-- Particles Config -->
 <script>
 if (document.getElementById('particles-js')) {
-    particlesJS('particles-js', {
-        "particles": {
-            "number": { "value": 100 },
-            "color": { "value": "#ffffff" },
-            "shape": { "type": "circle" },
-            "opacity": { "value": 0.5 },
-            "size": { "value": 3 },
-            "line_linked": {
-                "enable": true,
-                "distance": 150,
-                "color": "#ffffff",
-                "opacity": 0.2
-            },
-            "move": { "enable": true, "speed": 2 }
-        },
-        "interactivity": {
-            "events": { "onhover": { "enable": true, "mode": "grab" } },
-            "modes": { "grab": { "distance": 140 } }
-        },
-        "retina_detect": true
-    });
+  particlesJS('particles-js', {
+    "particles": { "number": { "value": 100 }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5 }, "size": { "value": 3 }, "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2 }, "move": { "enable": true, "speed": 2 } },
+    "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } }, "modes": { "grab": { "distance": 140 } } },
+    "retina_detect": true
+  });
 }
 </script>
 
-<!-- Google Maps API
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= GOOGLE_MAPS_API_KEY %>&libraries=places&callback=initMap"></script> -->
-
 <script>
-let map, directionsService, directionsRenderer;
-let routeRenderers = [];
-let trafficLayer;
-let autocompleteOrigin, autocompleteDestination;
-let currentRoutes = [];
+let map, directionsService, routeRenderers = [], trafficLayer;
+let autocompleteOrigin, autocompleteDestination, currentRoutes = [];
 
 // Initialize Map
 function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 20.5937, lng: 78.9629 },
-        zoom: 5,
-        disableDefaultUI: true,
-        zoomControl: true,
-        styles: [
-            { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-            { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-            { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
-            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] }
-        ]
-    });
+  if (!google || !google.maps || !google.maps.places) {
+    console.error("Google Maps API not loaded properly!");
+    return;
+  }
 
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({ map: null });
-    
-    // Initialize traffic layer but don't show it by default
-    trafficLayer = new google.maps.TrafficLayer();
-    trafficLayer.setMap(null); // Hide initially
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 20.5937, lng: 78.9629 },
+    zoom: 5,
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: [
+      { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] }
+    ]
+  });
 
-    const originInput = document.getElementById('origin-input');
-    const destinationInput = document.getElementById('destination-input');
+  directionsService = new google.maps.DirectionsService();
+  trafficLayer = new google.maps.TrafficLayer();
+  trafficLayer.setMap(null);
 
-    autocompleteOrigin = new google.maps.places.Autocomplete(originInput, { componentRestrictions: { country: 'in' } });
-    autocompleteDestination = new google.maps.places.Autocomplete(destinationInput, { componentRestrictions: { country: 'in' } });
+  const originInput = document.getElementById('origin-input');
+  const destinationInput = document.getElementById('destination-input');
 
-    document.getElementById('get-route-btn').addEventListener('click', calculateAndDisplayRoute);
-    document.getElementById('get-location-btn').addEventListener('click', getCurrentLocation);
+  autocompleteOrigin = new google.maps.places.Autocomplete(originInput, { componentRestrictions: { country: 'in' } });
+  autocompleteDestination = new google.maps.places.Autocomplete(destinationInput, { componentRestrictions: { country: 'in' } });
+
+  document.getElementById('get-route-btn').addEventListener('click', calculateAndDisplayRoute);
+  document.getElementById('get-location-btn').addEventListener('click', getCurrentLocation);
 }
 
-// Get current location
+// Current location
 function getCurrentLocation() {
-    const statusPanel = document.getElementById('status-panel');
-    const originInput = document.getElementById('origin-input');
+  const statusPanel = document.getElementById('status-panel');
+  const originInput = document.getElementById('origin-input');
 
-    if (navigator.geolocation) {
-        statusPanel.textContent = 'Getting your location...';
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: pos }, (results, status) => {
-                    if (status === 'OK' && results[0]) {
-                        originInput.value = results[0].formatted_address;
-                        statusPanel.textContent = 'Location found!';
-                        setTimeout(() => statusPanel.textContent = '', 2000);
-                    } else {
-                        statusPanel.textContent = 'Geocoder failed: ' + status;
-                    }
-                });
-            },
-            () => { statusPanel.textContent = 'Error: Geolocation service failed.'; }
-        );
-    } else {
-        statusPanel.textContent = 'Error: Your browser doesn\'t support geolocation.';
-    }
+  if (!navigator.geolocation) return statusPanel.textContent = 'Geolocation not supported.';
+
+  statusPanel.textContent = 'Getting your location...';
+  navigator.geolocation.getCurrentPosition(position => {
+    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: pos }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        originInput.value = results[0].formatted_address;
+        statusPanel.textContent = 'Location found!';
+        setTimeout(() => statusPanel.textContent = '', 2000);
+      } else statusPanel.textContent = 'Geocoder failed: ' + status;
+    });
+  }, () => statusPanel.textContent = 'Error: Geolocation failed.');
 }
 
-// Calculate and display multiple routes
+// Calculate routes
 function calculateAndDisplayRoute() {
-    const origin = document.getElementById('origin-input').value;
-    const destination = document.getElementById('destination-input').value;
-    const statusPanel = document.getElementById('status-panel');
-    const routesList = document.getElementById('routes-list');
+  const origin = document.getElementById('origin-input').value;
+  const destination = document.getElementById('destination-input').value;
+  const statusPanel = document.getElementById('status-panel');
+  const routesList = document.getElementById('routes-list');
 
-    if (!origin || !destination) {
-        statusPanel.textContent = 'Please enter both an origin and a destination.';
-        return;
-    }
+  if (!origin || !destination) return statusPanel.textContent = 'Enter both origin and destination.';
 
-    statusPanel.textContent = 'Calculating routes...';
-    routesList.innerHTML = '';
+  statusPanel.textContent = 'Calculating routes...';
+  routesList.innerHTML = '';
+  routeRenderers.forEach(r => r.setMap(null));
+  routeRenderers = [];
+  currentRoutes = [];
 
-    // Clear old routes
-    routeRenderers.forEach(r => r.setMap(null));
-    routeRenderers = [];
-    currentRoutes = [];
+  const request = {
+    origin, destination,
+    travelMode: google.maps.TravelMode.DRIVING,
+    provideRouteAlternatives: true,
+    drivingOptions: { departureTime: new Date(), trafficModel: 'bestguess' }
+  };
 
-    const request = {
-        origin: origin,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true,
-        drivingOptions: {
-            departureTime: new Date(), // Current time for traffic data
-            trafficModel: 'bestguess'
-        }
-    };
+  directionsService.route(request, (result, status) => {
+    if (status === 'OK') {
+      statusPanel.textContent = `Found ${result.routes.length} route(s)`;
+      currentRoutes = result.routes;
 
-    directionsService.route(request, (result, status) => {
-        if (status === 'OK') {
-            statusPanel.textContent = `Found ${result.routes.length} route(s)`;
-            
-            // Store routes globally
-            currentRoutes = result.routes;
-            
-            result.routes.forEach((route, index) => {
-                const renderer = new google.maps.DirectionsRenderer({
-                    map: null, // Don't show on map initially
-                    directions: result,
-                    routeIndex: index,
-                    preserveViewport: true,
-                    polylineOptions: {
-                        strokeColor: getRouteColor(index),
-                        strokeWeight: 6,
-                        strokeOpacity: 0.7,
-                    },
-                    suppressMarkers: false,
-                });
-                routeRenderers.push(renderer);
-
-                // Create route card
-                const routeCard = document.createElement('div');
-                routeCard.className = "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
-                routeCard.dataset.routeIndex = index;
-                
-                const leg = route.legs[0];
-                const hasTrafficData = leg.duration_in_traffic != null;
-                const trafficDuration = hasTrafficData ? leg.duration_in_traffic.text : 'N/A';
-                const trafficDiff = hasTrafficData ? 
-                    Math.round((leg.duration_in_traffic.value - leg.duration.value) / 60) : 0;
-                
-                routeCard.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-4 h-4 rounded-full" style="background-color: ${getRouteColor(index)}"></div>
-                                <strong class="text-white">Route ${index + 1}</strong>
-                            </div>
-                            <div class="text-sm text-gray-300 space-y-1">
-                                <div><span class="text-gray-400">Distance:</span> ${leg.distance.text}</div>
-                                <div><span class="text-gray-400">Normal Time:</span> ${leg.duration.text}</div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-400">With Traffic:</span> 
-                                    <span class="${getTrafficColorClass(trafficDiff)} font-medium">${trafficDuration}</span>
-                                    ${trafficDiff !== 0 ? 
-                                        `<span class="text-xs ${trafficDiff > 0 ? 'text-red-400' : 'text-green-400'}">
-                                            (${trafficDiff > 0 ? '+' : ''}${trafficDiff} min)
-                                        </span>` : ''
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        <button class="view-route-btn ml-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors">
-                            View
-                        </button>
-                    </div>
-                `;
-
-                // Add click event to show this route on map
-                routeCard.addEventListener('click', () => showRouteOnMap(index));
-                
-                // Also make the button work
-                routeCard.querySelector('.view-route-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showRouteOnMap(index);
-                });
-
-                routesList.appendChild(routeCard);
-            });
-
-            // Show first route by default
-            if (result.routes.length > 0) {
-                setTimeout(() => showRouteOnMap(0), 100);
-            }
-
-        } else {
-            statusPanel.textContent = 'Directions request failed: ' + status;
-            routesList.innerHTML = '<p class="text-gray-500 text-center py-4">Could not find a route. Please try different locations.</p>';
-        }
-    });
-}
-
-// Show specific route on map
-function showRouteOnMap(routeIndex) {
-    // Hide all routes first
-    routeRenderers.forEach(renderer => {
-        renderer.setMap(null);
-    });
-    
-    // Hide traffic layer first
-    trafficLayer.setMap(null);
-    
-    // Show selected route
-    const selectedRenderer = routeRenderers[routeIndex];
-    if (selectedRenderer) {
-        selectedRenderer.setMap(map);
-        
-        // Update polyline to be more prominent
-        selectedRenderer.setOptions({
-            polylineOptions: {
-                strokeColor: getRouteColor(routeIndex),
-                strokeWeight: 8,
-                strokeOpacity: 1,
-            }
+      result.routes.forEach((route, index) => {
+        const renderer = new google.maps.DirectionsRenderer({
+          map: null,
+          directions: result,
+          routeIndex: index,
+          preserveViewport: true,
+          polylineOptions: { strokeColor: getRouteColor(index), strokeWeight: 6, strokeOpacity: 0.7 },
+          suppressMarkers: false,
         });
-        
-        // Fit map to route bounds
-        const route = currentRoutes[routeIndex];
-        map.fitBounds(route.bounds);
-        
-        // Show traffic layer for this route
-        trafficLayer.setMap(map);
-        
-        // Update route card styles
-        updateRouteCardStyles(routeIndex);
+        routeRenderers.push(renderer);
+
+        // Route card
+        const routeCard = document.createElement('div');
+        routeCard.className = "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
+        routeCard.dataset.routeIndex = index;
+
+        const leg = route.legs[0];
+        const trafficDuration = leg.duration_in_traffic ? leg.duration_in_traffic.text : 'N/A';
+        const trafficDiff = leg.duration_in_traffic ? Math.round((leg.duration_in_traffic.value - leg.duration.value)/60) : 0;
+
+        routeCard.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-4 h-4 rounded-full" style="background-color: ${getRouteColor(index)}"></div>
+                <strong class="text-white">Route ${index+1}</strong>
+              </div>
+              <div class="text-sm text-gray-300 space-y-1">
+                <div><span class="text-gray-400">Distance:</span> ${leg.distance.text}</div>
+                <div><span class="text-gray-400">Normal Time:</span> ${leg.duration.text}</div>
+                <div class="flex items-center gap-1">
+                  <span class="text-gray-400">With Traffic:</span> 
+                  <span class="${getTrafficColorClass(trafficDiff)} font-medium">${trafficDuration}</span>
+                  ${trafficDiff !== 0 ? `<span class="text-xs ${trafficDiff>0?'text-red-400':'text-green-400'}">(${trafficDiff>0?'+':''}${trafficDiff} min)</span>`:''}
+                </div>
+              </div>
+            </div>
+            <button class="view-route-btn ml-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors">View</button>
+          </div>
+        `;
+
+        routeCard.addEventListener('click', () => showRouteOnMap(index));
+        routeCard.querySelector('.view-route-btn').addEventListener('click', e => { e.stopPropagation(); showRouteOnMap(index); });
+
+        routesList.appendChild(routeCard);
+      });
+
+      // Show first route by default
+      if (result.routes.length > 0) setTimeout(() => showRouteOnMap(0), 100);
+
+    } else {
+      statusPanel.textContent = 'Directions request failed: ' + status;
+      routesList.innerHTML = '<p class="text-gray-500 text-center py-4">Could not find a route.</p>';
     }
+  });
 }
 
-// Update route card styles when selected
-function updateRouteCardStyles(selectedIndex) {
-    const routeCards = document.querySelectorAll('#routes-list > div');
-    routeCards.forEach((card, index) => {
-        if (index === selectedIndex) {
-            card.className = "cursor-pointer p-3 rounded-lg bg-blue-900/30 hover:bg-blue-900/40 transition-all border-2 border-blue-500";
-        } else {
-            card.className = "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
-        }
-    });
+// Show route on map
+function showRouteOnMap(index) {
+  routeRenderers.forEach(r => r.setMap(null));
+  trafficLayer.setMap(null);
+
+  const renderer = routeRenderers[index];
+  if (!renderer) return;
+
+  renderer.setMap(map);
+  renderer.setOptions({ polylineOptions: { strokeColor: getRouteColor(index), strokeWeight: 8, strokeOpacity: 1 } });
+
+  const route = currentRoutes[index];
+  map.fitBounds(route.bounds);
+
+  trafficLayer.setMap(map);
+
+  // Update card styles
+  document.querySelectorAll('#routes-list > div').forEach((card, i) => {
+    card.className = i===index ? "cursor-pointer p-3 rounded-lg bg-blue-900/30 hover:bg-blue-900/40 transition-all border-2 border-blue-500" :
+      "cursor-pointer p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all border-2 border-gray-600";
+  });
 }
 
-// Get color for route based on index
 function getRouteColor(index) {
-    const colors = ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#8B5CF6'];
-    return colors[index % colors.length];
+  const colors = ['#4285F4','#34A853','#FBBC05','#EA4335','#8B5CF6'];
+  return colors[index % colors.length];
 }
 
-// Get traffic color class based on delay
-function getTrafficColorClass(trafficDiff) {
-    if (trafficDiff > 15) return 'text-red-400';
-    if (trafficDiff > 5) return 'text-orange-400';
-    if (trafficDiff > 0) return 'text-yellow-400';
-    if (trafficDiff < 0) return 'text-green-400';
-    return 'text-gray-300';
+function getTrafficColorClass(diff) {
+  if (diff>15) return 'text-red-400';
+  if (diff>5) return 'text-orange-400';
+  if (diff>0) return 'text-yellow-400';
+  if (diff<0) return 'text-green-400';
+  return 'text-gray-300';
 }
 </script>
+
+
+<style>
+    .hide-scrollbar {
+  -ms-overflow-style: none;7/* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;      
+}
+</style>
